@@ -61,3 +61,36 @@ GUI Mode
 ```bash
 python -m data_wiping_tool.main
 ```
+
+⚠️ Warnings
+
+❌ Irreversible: Data wiped cannot be recovered.
+
+🖥️ Do NOT use on system partitions (e.g., C:\ or /).
+
+🔑 Admin/root privileges required for full drive wipes.
+
+📦 Requirements
+
+* Python 3.8+
+
+* Dependencies:
+
+* reportlab
+
+* qrcode
+
+* pillow
+
+* psutil
+
+* Install via:
+```bash
+pip install -r requirements.txt
+```
+
+🛡️ License
+
+Licensed to Aniket Tegginamath.
+
+
