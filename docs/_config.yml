@@ -1,0 +1,63 @@
+# GitHub Pages Configuration
+title: "DataWipe Pro - Professional Data Wiping Tool"
+description: "Secure, reliable, and compliant data erasure for files, folders, and entire drives. Built with industry-standard protocols."
+url: "https://aniket886.github.io"
+baseurl: "/datawipingtool"
+
+# Site settings
+author: "Aniket Tegginamath"
+email: "aniket.gmu@gmail.com"
+github_username: "Aniket886"
+
+# Theme settings
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO settings
+lang: en
+google_analytics: # Add your GA tracking ID here
+google_site_verification: # Add your site verification code
+
+# Social media
+social:
+  github: "https://github.com/Aniket886"
+  linkedin: "https://linkedin.com/in/aniket-tegginamath-420324251"
+  medium: "https://medium.com/@anikettegginamath"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+timezone: Asia/Kolkata
+
+# Exclude files
+exclude:
+  - README.md
+  - LICENSE
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .sass-cache
+  - .jekyll-cache
+
+# Include files
+include:
+  - _pages
+  - assets
+
+# Collections
+collections:
+  pages:
+    output: true
+    permalink: /:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
