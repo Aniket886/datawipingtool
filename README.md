@@ -44,6 +44,8 @@ git clone https://github.com/yourusername/data-wiping-tool.git
 cd data-wiping-tool
 pip install -r requirements.txt
 
+---
+
 ⚡Usage
 CLI Mode
 python -m data_wiping_tool.cli target_path --method nist --cert-out cert.pdf
