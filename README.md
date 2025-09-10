@@ -39,8 +39,8 @@ Every operation generates a **Certificate of Secure Data Erasure 📜** for comp
 
 ## 🚀 Installation  
 
-```bash
-git clone https://github.com/Aniket886/data-wiping-tool.git
+```bash[
+git clone https://github.com/Aniket886/datawipingtool.git
 cd data-wiping-tool
 pip install -r requirements.txt
 ```
