@@ -43,46 +43,21 @@ Every operation generates a **Certificate of Secure Data Erasure 📜** for comp
 git clone https://github.com/yourusername/data-wiping-tool.git
 cd data-wiping-tool
 pip install -r requirements.txt
+```
 
----
+## ⚡ Usage
 
-⚡Usage
 CLI Mode
+```bash
 python -m data_wiping_tool.cli target_path --method nist --cert-out cert.pdf
+```
 
 Example:
-
+```bash
 python -m data_wiping_tool.cli ~/Documents/secret.txt --method dod --cert-out wipe_cert.pdf
+```
 
 GUI Mode
+```bash
 python -m data_wiping_tool.main
-
-⚠️ Warnings
-
-❌ Irreversible: Data wiped cannot be recovered.
-
-🖥️ Do NOT use on system partitions (e.g., C:\ or /).
-
-🔑 Admin/root privileges required for full drive wipes.
-
-📦 Requirements
-
-Python 3.8+
-
-Dependencies:
-
-reportlab
-
-qrcode
-
-pillow
-
-psutil
-
-Install via:
-
-pip install -r requirements.txt
-
-🛡️ License
-
-Licensed to Aniket Tegginamath.
+```
