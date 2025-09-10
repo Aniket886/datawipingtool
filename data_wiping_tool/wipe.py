@@ -567,27 +567,27 @@ def _secure_overwrite_file(path, method='quick', chunk_size=1024*1024, verify=Tr
         for pass_num, (pattern_type, pass_count) in enumerate(patterns, 1):
             for sub_pass in range(pass_count):
                 with open(path, 'r+b', buffering=0) as f:
-                f.seek(0)
-                remaining = size
+                    f.seek(0)
+                    remaining = size
                     
-                while remaining > 0:
-                    n = min(chunk_size, remaining)
+                    while remaining > 0:
+                        n = min(chunk_size, remaining)
                         
                         if pattern_type == 'zero':
-                        buf = b'\x00' * n
+                            buf = b'\x00' * n
                         elif pattern_type == 'one':
-                        buf = b'\xFF' * n
+                            buf = b'\xFF' * n
                         elif pattern_type == 'random':
-                        buf = secure_random_bytes(n)
-                    else:
+                            buf = secure_random_bytes(n)
+                        else:
                             raise WipeError(f'Unknown pattern type: {pattern_type}')
                         
-                    f.write(buf)
-                    remaining -= n
+                        f.write(buf)
+                        remaining -= n
                     
                     # Force write to disk
-                f.flush()
-                os.fsync(f.fileno())
+                    f.flush()
+                    os.fsync(f.fileno())
         
         # Verification pass (if enabled)
         verification_result = None
@@ -676,14 +676,14 @@ def _sample_verify_patterns(path, method, sample_count=10):
 
 def _wipe_file_slack_space(path):
     """Wipe the slack space in the file's last cluster"""
+    # This is a simplified implementation
+    # In a full implementation, you would:
+    # 1. Determine the cluster size of the filesystem
+    # 2. Calculate the slack space (cluster_size - (file_size % cluster_size))
+    # 3. Overwrite the slack space with random data
+    
+    # For now, we'll just truncate and extend the file to ensure slack space is cleared
     try:
-        # This is a simplified implementation
-        # In a full implementation, you would:
-        # 1. Determine the cluster size of the filesystem
-        # 2. Calculate the slack space (cluster_size - (file_size % cluster_size))
-        # 3. Overwrite the slack space with random data
-        
-        # For now, we'll just truncate and extend the file to ensure slack space is cleared
         size = os.path.getsize(path)
         if size > 0:
             with open(path, 'r+b') as f:
@@ -696,7 +696,7 @@ def _wipe_file_slack_space(path):
                 f.truncate(size)  # Truncate back to original size
                 f.flush()
                 os.fsync(f.fileno())
-        except:
+    except:
         pass  # Slack space wiping is best-effort
 
 def _secure_rename_file(path):
