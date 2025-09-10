@@ -50,8 +50,9 @@ class App(tk.Tk):
         
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=2, column=2, sticky='e')
-        ttk.Button(btn_frame, text="Browse...", command=self.browse).pack(side='left', padx=2)
-        ttk.Button(btn_frame, text="Drives", command=self.browse_drives).pack(side='left')
+        ttk.Button(btn_frame, text="Browse File", command=self.browse_file).pack(side='left', padx=2)
+        ttk.Button(btn_frame, text="Browse Folder", command=self.browse_folder).pack(side='left', padx=2)
+        ttk.Button(btn_frame, text="Select Drive", command=self.browse_drives).pack(side='left')
         
         ttk.Label(frm, text="Wipe Method").grid(row=3, column=0, sticky='w')
         self.method_var = tk.StringVar(value='quick')
@@ -93,10 +94,25 @@ class App(tk.Tk):
         self.logs_btn = ttk.Button(btn_frame, text="View Logs", command=self.view_logs)
         self.logs_btn.pack(side='left', padx=6)
 
-    def browse(self):
-        path = filedialog.askopenfilename(title="Select file")
-        if not path:
-            path = filedialog.askdirectory(title="Or select folder")
+    def browse_file(self):
+        path = filedialog.askopenfilename(
+            title="Select file to wipe",
+            filetypes=[
+                ("All files", "*.*"),
+                ("Text files", "*.txt"),
+                ("Documents", "*.pdf;*.doc;*.docx"),
+                ("Images", "*.jpg;*.png;*.gif;*.bmp"),
+                ("Videos", "*.mp4;*.avi;*.mkv;*.mov"),
+                ("Archives", "*.zip;*.rar;*.7z;*.tar")
+            ]
+        )
+        if path:
+            # Convert to absolute path and normalize
+            path = os.path.abspath(os.path.normpath(path))
+            self.path_var.set(path)
+
+    def browse_folder(self):
+        path = filedialog.askdirectory(title="Select folder to wipe")
         if path:
             # Convert to absolute path and normalize
             path = os.path.abspath(os.path.normpath(path))
