@@ -1,0 +1,4 @@
+reportlab==4.2.2
+qrcode==7.4.2
+pillow==10.4.0
+psutil==5.9.8
