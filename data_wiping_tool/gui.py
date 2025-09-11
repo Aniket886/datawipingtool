@@ -1,7 +1,7 @@
 ﻿import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import threading, os, time, platform
-from .wipe import wipe_file, wipe_folder, wipe_drive, get_available_drives, WipeError
+from .wipe import wipe_file, wipe_folder, wipe_drive, get_available_drives, WipeError, optimized_wipe_drive, get_optimized_method_info
 from .cert import generate_certificate
 from .logger import WipeLogger
 
@@ -55,22 +55,27 @@ class App(tk.Tk):
         ttk.Button(btn_frame, text="Select Drive", command=self.browse_drives).pack(side='left')
         
         ttk.Label(frm, text="Wipe Method").grid(row=3, column=0, sticky='w')
-        self.method_var = tk.StringVar(value='quick')
-        cmb = ttk.Combobox(frm, textvariable=self.method_var, values=['quick', 'nist', 'dod'], state='readonly')
+        self.method_var = tk.StringVar(value='AUTO')
+        method_values = ['AUTO', 'CRYPTO_ERASE', 'TRIM_WIPE', 'SINGLE_PASS', 'ENCRYPTION_WIPE', 'quick', 'nist', 'dod']
+        cmb = ttk.Combobox(frm, textvariable=self.method_var, values=method_values, state='readonly', width=15)
         cmb.grid(row=4, column=0, sticky='w', pady=(0, pad))
         
+        # Method info button
+        info_btn = ttk.Button(frm, text="ℹ️ Info", width=10, command=self.show_method_info)
+        info_btn.grid(row=4, column=2, sticky='w', padx=(10, 0), pady=(0, pad))
+        
         self.verify_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(frm, text="Verify after wipe", variable=self.verify_var).grid(row=4, column=1, sticky='w')
+        ttk.Checkbutton(frm, text="Verify after wipe", variable=self.verify_var).grid(row=5, column=0, sticky='w')
         
         self.log = tk.Text(frm, height=12, bg='#111827', fg='#e5e7eb', insertbackground='#e5e7eb')
-        self.log.grid(row=5, column=0, columnspan=3, sticky='nsew', pady=(0, pad))
+        self.log.grid(row=6, column=0, columnspan=3, sticky='nsew', pady=(0, pad))
         
-        frm.rowconfigure(5, weight=1)
+        frm.rowconfigure(6, weight=1)
         frm.columnconfigure(0, weight=1)
         
         # Progress frame
         progress_frame = ttk.Frame(frm)
-        progress_frame.grid(row=6, column=0, columnspan=3, sticky='we', pady=(0, pad))
+        progress_frame.grid(row=7, column=0, columnspan=3, sticky='we', pady=(0, pad))
         progress_frame.columnconfigure(0, weight=1)
         
         self.progress = ttk.Progressbar(progress_frame, mode='determinate', maximum=100)
@@ -251,10 +256,17 @@ Verification: {'Yes' if verify else 'No'}"""
             self._update_progress(10, "Initializing wipe process...")
             
             if is_drive:
-                self._update_progress(20, "Scanning drive for files...")
-                self._log(f"Drive wipe initiated for: {path}")
-                result = wipe_drive(path, method=method, verify=verify)
-                self._update_progress(60, "Drive contents wiped...")
+                # Check if using optimized methods
+                if method in ['AUTO', 'CRYPTO_ERASE', 'TRIM_WIPE', 'SINGLE_PASS', 'ENCRYPTION_WIPE']:
+                    self._log(f"🚀 Using optimized wiping method: {method}")
+                    self._update_progress(20, f"Initializing {method} wipe...")
+                    result = optimized_wipe_drive(path, method=method, verify=verify, progress_callback=self._update_progress)
+                else:
+                    # Use legacy drive wipe function  
+                    self._log(f"⚠️ Using legacy method: {method}")
+                    self._update_progress(20, "Scanning drive for files...")
+                    result = wipe_drive(path, method=method, verify=verify)
+                    self._update_progress(60, "Drive contents wiped...")
                 
                 # Log detailed results
                 if isinstance(result, dict):
@@ -446,6 +458,65 @@ Verification: {'Yes' if verify else 'No'}"""
             subprocess.call(['open', log_dir])
         else:
             subprocess.call(['xdg-open', log_dir])
+    
+    def show_method_info(self):
+        """Show information about available wipe methods"""
+        info_window = tk.Toplevel(self)
+        info_window.title("Wipe Method Information")
+        info_window.geometry('700x500')
+        info_window.configure(bg='#0f172a')
+        
+        # Create scrollable text widget
+        text_frame = ttk.Frame(info_window)
+        text_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        info_text = tk.Text(text_frame, bg='#111827', fg='#e5e7eb', insertbackground='#e5e7eb', 
+                           wrap='word', font=('Consolas', 10))
+        scrollbar = ttk.Scrollbar(text_frame, orient='vertical', command=info_text.yview)
+        info_text.configure(yscrollcommand=scrollbar.set)
+        
+        info_text.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
+        
+        # Get method information
+        method_info = get_optimized_method_info()
+        
+        # Create info content
+        content = "🔥 OPTIMIZED WIPE METHODS - SPEED & SECURITY BALANCED 🔥\n\n"
+        content += "Choose the best method for your drive type and security needs:\n\n"
+        
+        for method, info in method_info.items():
+            content += f"🛡️  {info['name']}\n"
+            content += f"    📝 Description: {info['description']}\n"
+            content += f"    ⚡ Speed: {info['speed']}\n"
+            content += f"    🔄 Wear Cycles: {info['wear_cycles']}\n"
+            content += f"    🔒 Security: {info['security']}\n"
+            content += f"    💡 Best For: {', '.join(info['best_for'])}\n\n"
+        
+        content += "\n" + "="*60 + "\n"
+        content += "LEGACY METHODS (for compatibility):\n\n"
+        content += "• Quick: Single-pass zero overwrite (legacy)\n"
+        content += "• NIST: Single-pass random overwrite (legacy)\n"
+        content += "• DoD: 3-pass overwrite (legacy, unnecessary for modern drives)\n\n"
+        
+        content += "🔍 AUTO MODE (Recommended):\n"
+        content += "• Automatically detects your drive type\n"
+        content += "• Chooses the fastest, most secure method\n"
+        content += "• SSD: CRYPTO_ERASE → TRIM_WIPE fallback\n"
+        content += "• USB Flash: TRIM_WIPE (fast, secure)\n"
+        content += "• HDD: SINGLE_PASS (sufficient, fast)\n\n"
+        
+        content += "💡 PRO TIPS:\n"
+        content += "• CRYPTO_ERASE: Instant wipe, zero wear (requires hardware support)\n"
+        content += "• TRIM_WIPE: Perfect for USB drives - no more slow .dat files!\n"
+        content += "• SINGLE_PASS: Universal method, works on all drives\n"
+        content += "• ENCRYPTION_WIPE: Maximum paranoid security\n"
+        
+        info_text.insert('1.0', content)
+        info_text.configure(state='disabled')
+        
+        # Add close button
+        ttk.Button(info_window, text="Close", command=info_window.destroy).pack(pady=10)
 
     def email_certificate(self):
         """Email the last generated certificate"""
